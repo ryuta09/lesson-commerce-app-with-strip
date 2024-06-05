@@ -1,15 +1,34 @@
-'use client'
-import { Session } from '@supabase/auth-helpers-nextjs'
-import React from 'react'
-import { Button } from '../ui/button'
+"use client";
+import {
+  Session,
+  createClientComponentClient,
+} from "@supabase/auth-helpers-nextjs";
+import React from "react";
+import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
-const AuthClientButton = ({session}: {session: Session | null}) => {
-  const handleSignIn = () => {
-    console.log('test');
-  }
+const AuthClientButton = ({ session }: { session: Session | null }) => {
+  const router = useRouter();
+  const supabase = createClientComponentClient();
+  const handleSignIn = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "github",
+    });
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.refresh();
+  };
   return (
-    <Button onClick={handleSignIn}>サインイン</Button>
-  )
-}
+    <>
+      {session ? (
+        <Button onClick={handleSignOut}>ログアウト</Button>
+      ) : (
+        <Button onClick={handleSignIn}>サインイン</Button>
+      )}
+    </>
+  );
+};
 
-export default AuthClientButton
+export default AuthClientButton;
